@@ -1,4 +1,4 @@
-## My Project
+## Cricket centric trasnlation for Indic Languages
 
 TODO: Fill this README out!
 
