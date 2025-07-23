@@ -578,3 +578,4 @@ generated-diagrams/*
 .bedrock*
 .docker*
 Dockerfile
+.README*
