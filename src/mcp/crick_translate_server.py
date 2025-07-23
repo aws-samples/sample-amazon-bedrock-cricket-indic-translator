@@ -161,11 +161,11 @@ if __name__ == "__main__":
             elif args.mode_type == "streamable-http":
                 logger.info(f"Starting Crickling MCP Server: Mode Type HTTP on {args.host}:{args.port}")
                 # Reinitialize with appropriate settings for HTTP
+                mcp.settings.host = args.host
+                mcp.settings.port = args.port
+                mcp.settings.stateless_http = True
                 mcp.run(
-                    transport="streamable-http",
-                    host=args.host,
-                    port=args.port,
-                    stateless_http=True
+                    transport="streamable-http"
                 )
         else:
             # Standalone mode - directly execute the functions

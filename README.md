@@ -6,8 +6,8 @@ Our domain-specific translation engine accurately captures the nuances, terminol
 
 > **Note:** This solution can be deployed in three different modes:
 > 
-> - **MCP Server Mode**: Integrate with any Agent of your choice to explore these features
-> - **Agent Mode**: Leverages AWS Strands for an agentic approach with AgentCore for deployment
+> - **MCP Server Mode**: Integrate with any Agent of your choice to explore these features - here we will use Amazon Q Command Line
+> - **Agent Mode**: Leverages AWS Strands for an agentic approach with AgentCore for deployment both Local / Remote
 > - **Standalone Mode**: Run as independent Python code
 
 ## Features
@@ -57,6 +57,100 @@ git clone https://github.com/aws-samples/sample-amazon-bedrock-cricket-indic-tra
 }
 ```
 
+### Deploying Agent with Bedrock AgentCore Runtime (Remote)
+
+#### Prerequisites
+
+- Set up [required IAM permissions](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-permissions.html) for Amazon Bedrock AgentCore (use managed policies)
+- [Install Amazon Q Command Line](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html)
+- [Configure AWS CLI credentials](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)
+
+#### Deployment Steps
+
+1. Navigate to the `src/agent` directory from the project root
+
+2. Configure the entry point using AgentCore:
+
+```bash
+agentcore configure --entrypoint crick_translate_agent.py -er <IAM_ROLE_ARN that you created in prerequisite>
+```
+
+3. Launch the Agent on AWS:
+
+```bash
+agentcore launch
+```
+
+4. Once successfully launched, execute a test translation:
+
+```bash
+agentcore invoke '{"prompt": "Please translate the cricket text - Kohli hits a magnificent six over long-on, to Tamil" }'
+```
+
+### Deploying with Bedrock AgentCore Runtime (Local)
+
+#### Prerequisites
+
+#### Deployment Steps
+
+1. Navigate to the `src/agent` directory from the project root
+
+2. Run the Agent app:
+
+```bash
+python crick_translate_agent.py
+```
+
+3. Local invoke
+
+```
+curl -X POST http://localhost:8080/invocations \
+-H "Content-Type: application/json" \
+-d '{"prompt": "Please translate the cricket text - Kohli hits a magnificent six over long-on, to Tamil"}'
+```
+
+### Installation as MCP Server in streamable http mode.
+
+#### Prerequisites
+- Install python 3.10 or greater
+
+#### Deployment Steps
+
+1. Clone the repository to your preferred project directory:
+
+```bash
+git clone https://github.com/aws-samples/sample-amazon-bedrock-cricket-indic-translator.git
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Navigate to the `src/mcp` directory from the project root.
+4. Start the streamable http MCP server
+
+```
+python crick_translate_server.py --mode mcp --mode-type streamable-http
+```
+5. Run the client
+
+```
+python crick_translate_client.py
+```
+
+6. Expected output as below
+
+```
+Translation Result:
+{
+  "translated_text": "विराट कोहली ने अंतिम ओवर में शतक बनाया, छह चौके और तीन छक्के लगाए।\n",
+  "source_language": "English",
+  "target_language": "Hindi"
+}
+```
+
 ### Installation for Python Standalone (Conda)
 
 #### Prerequisites
@@ -96,35 +190,6 @@ pip install -r requirements.txt
 python src/server.py --mode standalone --function translate --input-text "Kohli hits a magnificent six over long-on" --target-language Tamil
 ```
 
-### Deploying with Bedrock AgentCore Runtime
-
-#### Prerequisites
-
-- Set up [required IAM permissions](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-permissions.html) for Amazon Bedrock AgentCore (use managed policies)
-- [Install Amazon Q Command Line](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html)
-- [Configure AWS CLI credentials](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)
-
-#### Deployment Steps
-
-1. Navigate to the `src/agent` directory from the project root
-
-2. Configure the entry point using AgentCore:
-
-```bash
-agentcore configure --entrypoint crick_translate_agent.py -er <IAM_ROLE_ARN that you created in prerequisite>
-```
-
-3. Launch the Agent on AWS:
-
-```bash
-agentcore launch
-```
-
-4. Once successfully launched, execute a test translation:
-
-```bash
-agentcore invoke '{"prompt": "Please translate the cricket text - Kohli hits a magnificent six over long-on, to Tamil" }'
-```
 
 #### Cleanup Steps
 
