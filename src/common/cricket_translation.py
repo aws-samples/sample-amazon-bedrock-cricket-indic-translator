@@ -1,28 +1,18 @@
-#!/usr/bin/env python3
 """
-Crick Translate MCP Server
-
-An MCP server that provides tools for translating cricket text to Indian regional languages
-while preserving cricket terminology and cultural context.
+Common functionality for cricket translation services.
+This module contains shared code used by both the MCP server and the agent.
 """
 
 import json
 import logging
-import argparse
-import asyncio
-import sys
 from typing import Any, Dict, List, Optional
-from mcp.server.fastmcp import FastMCP
 from strands import Agent
 from strands.models import BedrockModel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("crick-trasnlate")
+logger = logging.getLogger("cricket-translation")
 
-# Create FastMCP instance - will be properly configured based on mode type
-# We initialize with default settings for decorator usage, but will reconfigure in main
-mcp = FastMCP("crick-translate-mcp-server")
 # Initialize a global agent dictionary to store agents for different models
 # This ensures we only create one agent per model ID
 AGENTS = {}
@@ -125,8 +115,6 @@ EXAMPLE_TRANSLATIONS = {
     "Malayalam": "കോഹ്‌ലി ലോങ്-ഓണിന് മുകളിലൂടെ ഒരു മനോഹരമായ സിക്സ് അടിച്ചു. ഇന്ത്യയ്ക്ക് 36 പന്തിൽ 45 റൺസ് വേണം.",
     "Marathi": "कोहलीने लाँग-ऑनवर एक भव्य षटकार मारला. भारताला 36 चेंडूंमध्ये 45 धावांची आवश्यकता आहे."
 }
-
-# ==================== HELPER FUNCTIONS ====================
 
 def generate_translation_prompt(input_text: str, target_language: str) -> str:
     """
@@ -252,170 +240,17 @@ async def get_cricket_terminology_data(target_language: str) -> Dict[str, Any]:
         "terminology": terms
     }
 
-# ==================== TRANSLATION TOOLS ====================
-
-@mcp.tool()
-async def translate_cricket(input_text, target_language, model_id="us.amazon.nova-lite-v1:0"):
+def validate_language(target_language: str) -> (bool, str):
     """
-    Translates cricket text to the specified Indian regional language while preserving cricket terminology.
+    Validate that the target language is supported.
     
     Args:
-        input_text (str): The cricket text to translate
-        target_language (str): Target language for translation (Tamil, Hindi, Telugu, Kannada, Bengali, Malayalam, or Marathi)
-        model_id (str): The model ID to use for translation (default: "us.amazon.nova-lite-v1:0")
+        target_language: The target language to validate
         
     Returns:
-        str: JSON response containing the translated text and metadata
+        Tuple of (is_valid, error_message)
     """
-    try:
-        if not input_text:
-            return "Error: Input text cannot be empty"
-            
-        supported_languages = ["Tamil", "Hindi", "Telugu", "Kannada", "Bengali", "Malayalam", "Marathi"]
-        if target_language not in supported_languages:
-            return f"Error: Target language must be one of: {', '.join(supported_languages)}. Got: {target_language}"
-        
-        logger.info(f"Translating cricket text to {target_language} using model {model_id}")
-        
-        # Call the translation function
-        result = await translate_cricket_text(input_text, target_language, model_id)
-        
-        # Return the result as JSON
-        return json.dumps({
-            "translated_text": result["translated_text"],
-            "source_language": "English",
-            "target_language": target_language
-        }, indent=2)
-    except Exception as e:
-        return f"Error translating cricket text: {str(e)}"
-
-@mcp.tool()
-async def get_cricket_terminology(target_language):
-    """
-    Get cricket terminology reference for the specified language.
-    
-    Args:
-        target_language (str): Target language (Tamil, Hindi, Telugu, Kannada, Bengali, Malayalam, or Marathi)
-        
-    Returns:
-        str: JSON response containing cricket terminology in the target language
-    """
-    try:
-        supported_languages = ["Tamil", "Hindi", "Telugu", "Kannada", "Bengali", "Malayalam", "Marathi"]
-        if target_language not in supported_languages:
-            return f"Error: Target language must be one of: {', '.join(supported_languages)}. Got: {target_language}"
-        
-        logger.info(f"Getting cricket terminology for {target_language}")
-        
-        # Get the terminology data
-        result = await get_cricket_terminology_data(target_language)
-        
-        # Return the terminology as JSON
-        return json.dumps(result, indent=2)
-    except Exception as e:
-        return f"Error getting cricket terminology: {str(e)}"
-
-# ==================== COMMAND LINE ARGUMENTS ====================
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Crickling Translation Server")
-    parser.add_argument(
-        "--mode", 
-        choices=["mcp", "standalone"], 
-        default="mcp",
-        help="Server mode: 'mcp' for MCP server, 'standalone' for direct function execution"
-    )
-    parser.add_argument(
-        "--mode-type", 
-        choices=["stdio", "streamable-http"], 
-        default="stdio",
-        help="Server mode type: 'stdio' for Q CLI Integration, 'streamable-http' for Agentcore integration"
-    )
-    parser.add_argument(
-        "--host",
-        default="0.0.0.0",
-        help="Host address for HTTP server (used with streamable-http mode type)"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8080,
-        help="Port for HTTP server (used with streamable-http mode type)"
-    )
-    parser.add_argument(
-        "--stateless-http",
-        default=True,
-        help="Run HTTP server in stateless mode (used with streamable-http mode type)"
-    )
-    parser.add_argument(
-        "--input-text",
-        help="Text to translate (required in standalone mode)"
-    )
-    parser.add_argument(
-        "--target-language",
-        help="Target language for translation (required in standalone mode)"
-    )
-    parser.add_argument(
-        "--model-id",
-        default="us.amazon.nova-lite-v1:0",
-        help="Model ID to use for translation (standalone mode only)"
-    )
-    parser.add_argument(
-        "--function",
-        choices=["translate", "terminology"],
-        default="translate",
-        help="Function to execute in standalone mode: 'translate' or 'terminology'"
-    )
-    return parser.parse_args()
-
-# ==================== MAIN ENTRY POINT ====================
-
-if __name__ == "__main__":
-    try:
-        args = parse_args()
-        
-        if args.mode == "mcp":
-            # Reconfigure MCP based on mode type
-            if args.mode_type == "stdio":
-                logger.info("Starting Crickling MCP Server: Mode Type stdio")
-                # Reinitialize with appropriate settings for stdio
-                mcp.run(transport="stdio")
-            elif args.mode_type == "streamable-http":
-                logger.info(f"Starting Crickling MCP Server: Mode Type HTTP on {args.host}:{args.port}")
-                # Reinitialize with appropriate settings for HTTP
-                mcp.run(
-                    transport="streamable-http",
-                    host=args.host,
-                    port=args.port,
-                    stateless_http=True
-                )
-        else:
-            # Standalone mode - directly execute the functions
-            if args.function == "translate":
-                if not args.input_text or not args.target_language:
-                    print("Error: --input-text and --target-language are required for translation in standalone mode")
-                    sys.exit(1)
-                    
-                result = asyncio.run(translate_cricket_text(
-                    args.input_text, 
-                    args.target_language, 
-                    args.model_id
-                ))
-                print()
-                print(f"Result : {result}")
-            elif args.function == "terminology":
-                if not args.target_language:
-                    print("Error: --target-language is required for terminology lookup in standalone mode")
-                    sys.exit(1)
-                    
-                result = asyncio.run(get_cricket_terminology_data(args.target_language))
-                print(json.dumps(result, indent=2))
-    except KeyboardInterrupt:
-        logger.info("Server shutdown requested")
-    except Exception as e:
-        logger.error(f"Error running server: {str(e)}")
-    finally:
-        # Clean up agents
-        logger.info(f"Cleaning up {len(AGENTS)} agent instances")
-        AGENTS.clear()
-        logger.info("Server shutdown complete")
+    supported_languages = ["Tamil", "Hindi", "Telugu", "Kannada", "Bengali", "Malayalam", "Marathi"]
+    if target_language not in supported_languages:
+        return False, f"Error: Target language must be one of: {', '.join(supported_languages)}. Got: {target_language}"
+    return True, ""

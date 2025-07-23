@@ -4,6 +4,12 @@ The project aims to develop a specialized natural language processing (NLP) syst
 
 This project will create a domain-specific translation engine that accurately captures the nuances, terminology, and cultural contexts of cricket commentary, news and analysis across major Indic languages.
 
+Note : This solution can be run in three modes 
+
+- As an MCP server , integrate with any Agents of you choice to explore this features.
+- As an Agent , Uses AWS Strands for agentic approach and levergae Agentic core for deployment.
+- As an standalone python code 
+
 ## Features
 
 - Translates cricket centric text to Tamil, Hindi, Telugu, Kannada, Bengali, Malayalam, and Marathi
@@ -14,11 +20,40 @@ This project will create a domain-specific translation engine that accurately ca
 
 ## Quick Start
 
+### Deploying it in Bedrock AgentCore Runtime
+
+#### Prerequisite
+
+- Make sure required [IAM](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-permissions.html) access is provided for Amazon Bedrock AgentCore - Use Managed pol,icies to provision.
+- [Install](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html) Amazon Q Ccommand Line 
+- Configure AWS Cli for required [credentials](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)
+
+#### Deployment steps
+
+1. Please traverse to the `src/agent` from project directory
+2. Configure the entry point using agentcore.
+
+```
+agentcore configure --entrypoint crick_translate_agent.py -er <IAM_ROLE_ARN that you created in prerequisite>
+```
+3. Launch the Agent on AWS for access.
+
+```
+agentcore launch
+```
+
+4. Once successfuly lauched, please use below command to execute
+
+```
+agentcore invoke '{"prompt": "Please trasnlate the cricket text - Kohli hits a magnificent six over long-on, to Tamil" }
+```
+
 ### Deploying as MCP server for Amazon Q Command Line
 
 #### Prerequisite
 
 - [Install](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html) Amazon Q Ccommand Line 
+- Configure AWS Cli for required [credentials](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)
 - [Install](https://docs.astral.sh/uv/getting-started/installation/) uv
 - [Install](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) git to clone the repository
 
@@ -44,7 +79,7 @@ You can also register the MCP server by directly updating the `.amazonq/mcp.json
       "command": "uv",
       "args": [
         "run",
-        "<Project clone Directory>/sample-amazon-bedrock-cricket-indic-translator/src/server.py"
+        "<Project clone Directory>/sample-amazon-bedrock-cricket-indic-translator/src/mcp/crick_translate_server.py"
       ]
     }
   }
@@ -52,7 +87,7 @@ You can also register the MCP server by directly updating the `.amazonq/mcp.json
 
 ```
 
-### Installation in Conda Environment
+### Installation for Python Standalone (Conda)
 
 #### Prerequisite
 
