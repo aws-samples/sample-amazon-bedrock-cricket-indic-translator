@@ -24,7 +24,9 @@ Our domain-specific translation engine accurately captures the nuances, terminol
 
 #### Schematic View
 
-![amazonq-mcp-view](./misc/crick-translate-mcp.jpg)
+<p align="center">
+  <img src="./misc/crick-translate-mcp.jpg" alt="amazonq-mcp-view">
+</p>
 
 #### Prerequisites
 
@@ -65,7 +67,9 @@ git clone https://github.com/aws-samples/sample-amazon-bedrock-cricket-indic-tra
 
 #### Schematic view on the solution
 
-![schematic-view](./misc/crick-translate-agentcore.jpg)
+<p align="center">
+  <img src="./misc/crick-translate-agentcore.jpg" alt="schematic-view">
+</p>
 
 #### Prerequisites
 
