@@ -209,6 +209,10 @@ conda deactivate
 conda remove -n bedrock-crick-indic-translator --all
 ```
 
+## Sample Trasnlation
+
+Please find the sample output [sample outputs](cricket_translations.md)
+
 ## Translation Guidelines
 
 The translation system follows these specialized guidelines:
