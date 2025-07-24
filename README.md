@@ -217,7 +217,7 @@ conda deactivate
 conda remove -n bedrock-crick-indic-translator --all
 ```
 
-## Sample Trasnlation
+## Sample Output
 
 Please find the sample output [sample outputs](cricket_translations.md)
 
