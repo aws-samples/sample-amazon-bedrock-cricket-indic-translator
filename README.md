@@ -59,6 +59,10 @@ git clone https://github.com/aws-samples/sample-amazon-bedrock-cricket-indic-tra
 
 ### Deploying Agent with Bedrock AgentCore Runtime (Remote)
 
+#### Schematic view on the solution
+
+![schematic-view](./misc/crick-translate-agentcore.jpg)
+
 #### Prerequisites
 
 - Set up [required IAM permissions](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-permissions.html) for Amazon Bedrock AgentCore (use managed policies)
