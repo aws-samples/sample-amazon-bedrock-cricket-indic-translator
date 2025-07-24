@@ -22,6 +22,10 @@ Our domain-specific translation engine accurately captures the nuances, terminol
 
 ### Deploying as MCP Server for Amazon Q Command Line
 
+#### Schematic View
+
+![amazonq-mcp-view](./misc/crick-translate-mcp.jpg)
+
 #### Prerequisites
 
 - [Install Amazon Q Command Line](https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/command-line-installing.html)
